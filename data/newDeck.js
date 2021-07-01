@@ -4,9 +4,15 @@ export function getCards() {
   const suitedCards = []
   CARD_INFO.SUIT_TYPES.forEach((suit) => {
     CARD_INFO.CARDS.forEach((card) => {
-      suitedCards.push(`${card}${suit}`)
+      suitedCards.push({
+        cardNoSuit: card,
+        suit: suit.friendlyName,
+        unicode: suit.unicode,
+        cardString: `${card}${suit.unicode}`,
+      })
     })
   })
+
   return suitedCards
 }
 

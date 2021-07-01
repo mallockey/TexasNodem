@@ -1,9 +1,11 @@
 class Player {
   constructor() {
-    this.hand = []
+    this.cards = []
+    this.hand = ''
+    this.suitsObj = {}
   }
-  setHand([...cards]) {
-    this.hand = cards
+  setCards([...cards]) {
+    this.cards = cards
   }
 }
 
