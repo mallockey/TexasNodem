@@ -1,6 +1,4 @@
 import { getCards, shuffleCards } from '../data/newDeck.js'
-import Player from './Player.js'
-
 class Game {
   constructor() {
     this.resetGame()
@@ -21,13 +19,5 @@ class Game {
     }
   }
 }
-
-const game = new Game()
-const player1 = new Player()
-player1.setHand(game.dealCards())
-game.dealToBoard(3)
-
-console.log(player1)
-console.log(game.board)
 
 export default Game
