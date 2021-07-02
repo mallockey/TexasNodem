@@ -61,3 +61,36 @@ export function findStraight(board, playerCards) {
     return 'Straight!'
   }
 }
+
+export function findPairs(board, playerCards) {
+  const pairMap = {
+    2: 'Two',
+    3: 'Three',
+    4: 'Four',
+  }
+
+  let copyOfBoard = [...board]
+  let copyOfPlayercards = [...playerCards]
+  copyOfBoard = copyOfBoard.map((card) => card.cardNoSuit)
+  copyOfPlayercards = copyOfPlayercards.map((card) => card.cardNoSuit)
+  copyOfPlayercards = [...copyOfPlayercards, ...copyOfBoard]
+  let tmp = {}
+  copyOfPlayercards.forEach((card) => {
+    if (!tmp[card]) {
+      tmp[card] = 1
+    } else {
+      tmp[card] = tmp[card] + 1
+    }
+  })
+  let maxValue = 0
+  for (let card in tmp) {
+    if (!maxValue) {
+      maxValue = tmp[card]
+    } else if (tmp[card] > maxValue) {
+      maxValue = tmp[card]
+    }
+  }
+  console.log(maxValue)
+  console.log(tmp)
+  return `${pairMap[maxValue]} of a kind`
+}
