@@ -1,5 +1,6 @@
 import cardInfo from '../data/cardInfo.js'
-export function countNumSuits(cards) {
+
+function countNumSuits(cards) {
   let numSuitsObj = {}
   cards.forEach((card) => {
     if (numSuitsObj[card['suit']]) {
@@ -11,43 +12,67 @@ export function countNumSuits(cards) {
   return numSuitsObj
 }
 
-export function findFlush(suitBoardObj, playerSuitObj) {
-  for (let suit in suitBoardObj) {
-    if (suitBoardObj[suit] === 5) {
-      return `Flush of ${suit}`
-    }
-  }
+export function findBestHand(board, playerHand) {
+  const combinedCards = [...board, ...playerHand]
+  let suitObj = countNumSuits(combinedCards)
 
-  let tmp = { ...suitBoardObj }
-  for (let suit in playerSuitObj) {
-    if (tmp[suit]) {
-      tmp[suit] = tmp[suit] + playerSuitObj[suit]
+  let flushCards = []
+  const pairs = findPairs(combinedCards)
+  if (Object.values(suitObj).some((item) => item >= 5)) {
+    const flushSuit = Object.keys(suitObj).find((suit) => suitObj[suit] >= 5)
+    combinedCards.map((card) => {
+      if (card.suit === flushSuit) {
+        flushCards.push(card)
+      }
+    })
+    if (findStraight(flushCards)) {
+      if (findRoyalFlush(flushCards)) {
+        return 'Royal Flush'
+      } else {
+        return 'Straight Flush'
+      }
+    } else if (pairs === 'Four of a kind') {
+      return '4 of a kind'
+    } else {
+      return 'Flush'
     }
+  } else {
+    return 'Not flush'
   }
-
-  for (let suit in tmp) {
-    if (tmp[suit] === 5) {
-      return `Flush of ${suit}`
-    }
-  }
-
-  return 'Not Flush'
 }
 
-export function findStraight(board, playerCards) {
-  const copyOfCards = ['A', ...cardInfo.CARDS]
-  let combinedCards = [...board, ...playerCards]
-  combinedCards = combinedCards.map((card) => card.cardNoSuit)
+function findRoyalFlush(cards) {
+  let royalFlush = [10, 'J', 'Q', 'K', 'A']
+  let count = 0
+
+  cards.forEach((card, index) => {
+    royalFlush.forEach((royalCard) => {
+      if (royalCard === card.cardNoSuit) {
+        count++
+      }
+    })
+  })
+
+  if (count === 5) {
+    return true
+  } else {
+    return false
+  }
+}
+
+function findStraight(cards) {
+  let copyOfCards = ['A', ...cardInfo.CARDS]
+  let passedInCards = cards.map((card) => card.cardNoSuit)
 
   copyOfCards.forEach((card, index) => {
-    if (combinedCards.includes(card)) {
+    if (passedInCards.includes(card)) {
       copyOfCards[index] = 'FOUND'
     }
   })
 
   let countTo5 = 0
-  for (let i = 0; i < copyOfCards.length; i++) {
-    if (countTo5 === 5) {
+  for (let i = copyOfCards.length - 1; i >= 0; i--) {
+    if (countTo5 >= 5) {
       break
     }
     if (copyOfCards[i] === 'FOUND') {
@@ -57,40 +82,47 @@ export function findStraight(board, playerCards) {
     }
   }
 
-  if (countTo5 === 5) {
-    return 'Straight!'
+  if (countTo5 >= 5) {
+    return true
+  } else {
+    return false
   }
 }
 
-export function findPairs(board, playerCards) {
+function findPairs(cards) {
   const pairMap = {
     2: 'Two',
     3: 'Three',
     4: 'Four',
   }
 
-  let copyOfBoard = [...board]
-  let copyOfPlayercards = [...playerCards]
-  copyOfBoard = copyOfBoard.map((card) => card.cardNoSuit)
-  copyOfPlayercards = copyOfPlayercards.map((card) => card.cardNoSuit)
-  copyOfPlayercards = [...copyOfPlayercards, ...copyOfBoard]
+  const copyOfBoard = cards.map((card) => card.cardNoSuit)
+
   let tmp = {}
-  copyOfPlayercards.forEach((card) => {
+  copyOfBoard.forEach((card) => {
     if (!tmp[card]) {
       tmp[card] = 1
     } else {
       tmp[card] = tmp[card] + 1
     }
   })
+
   let maxValue = 0
+  let twoPairCount = 0
   for (let card in tmp) {
     if (!maxValue) {
       maxValue = tmp[card]
     } else if (tmp[card] > maxValue) {
       maxValue = tmp[card]
     }
+    if (tmp[card] === 2) {
+      twoPairCount++
+    }
   }
-  console.log(maxValue)
-  console.log(tmp)
-  return `${pairMap[maxValue]} of a kind`
+
+  if (twoPairCount === 2 && maxValue < 3) {
+    return 'Two pair'
+  }
+
+  return maxValue === 1 ? 'No pair' : `${pairMap[maxValue]} of a kind`
 }

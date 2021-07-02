@@ -1,5 +1,5 @@
 import { getCards, shuffleCards } from '../data/newDeck.js'
-import { countNumSuits, findFlush, findStraight, findPairs } from '../functions/findHands.js'
+import { findBestHand } from '../functions/findHands.js'
 class Game {
   constructor() {
     this.resetGame()
@@ -20,19 +20,8 @@ class Game {
       this.board.push(this.deck.pop())
     }
   }
-  findHand(board, playerHand) {
-    let boardSuits = countNumSuits(board)
-    let playerSuits = countNumSuits(playerHand)
-    return findPairs(board, playerHand)
-    // const flush = findFlush(boardSuits, playerSuits)
-    // if (flush !== 'Not Flush') {
-    //   return flush
-    // }
-    // const straight = findStraight(board, playerHand)
-    // if (straight === 'Straight!') {
-    //   return straight
-    // }
-    // return 'Nothing'
+  findHand(playerHand) {
+    return findBestHand(this.board, playerHand)
   }
 }
 

@@ -9,6 +9,8 @@ game.dealToBoard(10)
 
 player1.setCards(game.dealCards())
 
-player1.hand = game.findHand(game.board, player1.cards)
+player1.hand = game.findHand(player1.cards)
+
+console.log(player1.cards)
 console.log(game.board)
-console.log(player1)
+console.log(player1.hand)
