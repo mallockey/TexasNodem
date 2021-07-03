@@ -12,40 +12,68 @@ function countNumSuits(cards) {
   return numSuitsObj
 }
 
+function generatePairObject(cards) {
+
+  const copyOfBoard = cards.map((card) => card.cardNoSuit)
+
+  let tmp = {}
+  copyOfBoard.forEach((card) => {
+    if (!tmp[card]) {
+      tmp[card] = 1
+    } else {
+      tmp[card] = tmp[card] + 1
+    }
+  })
+
+  return tmp
+}
+
 export function findBestHand(board, playerHand) {
+  findHighCard(playerHand)
   const combinedCards = [...board, ...playerHand]
   let suitObj = countNumSuits(combinedCards)
 
   let flushCards = []
-  const pairs = findPairs(combinedCards)
-  if (Object.values(suitObj).some((item) => item >= 5)) {
-    const flushSuit = Object.keys(suitObj).find((suit) => suitObj[suit] >= 5)
-    combinedCards.map((card) => {
-      if (card.suit === flushSuit) {
-        flushCards.push(card)
-      }
-    })
+  const flushSuit = Object.keys(suitObj).find((suit) => suitObj[suit] >= 5)
+
+  combinedCards.map((card) => {
+    if (card.suit === flushSuit) {
+      flushCards.push(card)
+    }
+  })
+
+  const pairsObj = generatePairObject(combinedCards)
+
+  if(flushSuit){
     if (findStraight(flushCards)) {
       if (findRoyalFlush(flushCards)) {
         return 'Royal Flush'
       } else {
         return 'Straight Flush'
       }
-    } else if (pairs === 'Four of a kind') {
-      return '4 of a kind'
-    } else {
-      return 'Flush'
     }
+    return 'Flush'
+  } else if (findPairs(pairsObj) === 'Four of a kind') {
+    return '4 of a kind'
+  } else if(findFullHouse(pairsObj)) {
+    return 'Full House'
+  } else if(flushSuit){
+    return `Flush of ${flushSuit}`
+  } else if(findStraight(combinedCards)){
+    return 'Straight'
+  } else if(findPairs(pairsObj)) {
+    return findPairs(pairsObj)
   } else {
-    return 'Not flush'
+    return findHighCard(playerHand)
   }
 }
 
 function findRoyalFlush(cards) {
-  let royalFlush = [10, 'J', 'Q', 'K', 'A']
+  let royalFlush = cardInfo.CARDS.slice(8)
+
   let count = 0
 
-  cards.forEach((card, index) => {
+  cards.forEach(card => {
     royalFlush.forEach((royalCard) => {
       if (royalCard === card.cardNoSuit) {
         count++
@@ -53,11 +81,7 @@ function findRoyalFlush(cards) {
     })
   })
 
-  if (count === 5) {
-    return true
-  } else {
-    return false
-  }
+  return (count === 5 ? true : false)
 }
 
 function findStraight(cards) {
@@ -71,6 +95,7 @@ function findStraight(cards) {
   })
 
   let countTo5 = 0
+
   for (let i = copyOfCards.length - 1; i >= 0; i--) {
     if (countTo5 >= 5) {
       break
@@ -82,47 +107,75 @@ function findStraight(cards) {
     }
   }
 
-  if (countTo5 >= 5) {
-    return true
-  } else {
-    return false
-  }
+  return (countTo5 >= 5 ? true : false)
 }
 
-function findPairs(cards) {
+function findFullHouse(pairObject){
+
+  let count = 0
+  for(let card in pairObject){
+    if(pairObject[card] === 3){
+      count += 3
+    }else if(pairObject[card] === 2){
+      count += 2
+    }
+  }
+
+  return (count === 5 ? true : false)
+}
+
+function findPairs(pairObject) {
+
   const pairMap = {
     2: 'Two',
     3: 'Three',
     4: 'Four',
   }
 
-  const copyOfBoard = cards.map((card) => card.cardNoSuit)
-
-  let tmp = {}
-  copyOfBoard.forEach((card) => {
-    if (!tmp[card]) {
-      tmp[card] = 1
-    } else {
-      tmp[card] = tmp[card] + 1
-    }
-  })
-
   let maxValue = 0
   let twoPairCount = 0
-  for (let card in tmp) {
+  for (let card in pairObject) {
     if (!maxValue) {
-      maxValue = tmp[card]
-    } else if (tmp[card] > maxValue) {
-      maxValue = tmp[card]
+      maxValue = pairObject[card]
+    } else if (pairObject[card] > maxValue) {
+      maxValue = pairObject[card]
     }
-    if (tmp[card] === 2) {
+    if (pairObject[card] === 2) {
       twoPairCount++
     }
   }
 
-  if (twoPairCount === 2 && maxValue < 3) {
+  if (twoPairCount >= 2) {
     return 'Two pair'
   }
 
-  return maxValue === 1 ? 'No pair' : `${pairMap[maxValue]} of a kind`
+  return maxValue >= 2 ? `${pairMap[maxValue]} of a kind` : false
+}
+
+function findHighCard(cards){
+  let copyOfCards = [...cardInfo.CARDS]
+
+  copyOfCards.forEach((boardCard,index) => {
+    cards.forEach(card => {
+      if(boardCard === card.cardNoSuit){
+        copyOfCards[index] = {
+          card: boardCard,
+          found: true
+        }
+      }
+    })
+  })
+
+  let highCard = null
+  let i = copyOfCards.length - 1
+  while(i >= 0){
+    if(copyOfCards[i].found){
+      highCard = copyOfCards[i].card
+      break
+    }
+    i--
+  }
+
+  return `${highCard} high`
+
 }

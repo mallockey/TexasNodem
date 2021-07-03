@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/mallockey/TexasNodem/issues"
   },
-  "homepage": "https://github.com/mallockey/TexasNodem#readme"
+  "homepage": "https://github.com/mallockey/TexasNodem#readme",
+  "dependencies": {
+    "prompt-sync": "^4.2.0"
+  }
 }

@@ -5,7 +5,6 @@ class Game {
     this.resetGame()
     this.board = []
     this.boardsHand = ''
-    this.suitsObj = {}
   }
   resetGame() {
     this.deck = shuffleCards(getCards())
@@ -19,6 +18,9 @@ class Game {
     for (let i = 0; i < numCards; i++) {
       this.board.push(this.deck.pop())
     }
+  }
+  cardsToString(){
+    return this.board.map(card => card.cardString)
   }
   findHand(playerHand) {
     return findBestHand(this.board, playerHand)
